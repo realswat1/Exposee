@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-//import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Registration.css'
 import { UserContext } from '../../UserContext.js';
 
@@ -9,7 +9,7 @@ const Registration = () => {
   const [password, setPassword] = useState('');
 
   const { updateUser } = useContext(UserContext);
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -5,7 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { sequelize } from './database.js';
 import { User, Post } from './models/index.js';
-import userRoutes from './routes/user.js';
+import userRoutes from './Routes/user.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
 
 const app = express();
@@ -75,8 +75,10 @@ app.post('/posts', async (req, res) => {
       include: [{ model: User, as: 'user' }]
     });
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
+    res.status(201).json(postWithUser);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 sequelize.sync({ alter: true })
