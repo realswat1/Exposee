@@ -1,4 +1,4 @@
-import { User } from './user.js';
+import { User } from './users.js';
 import { Post } from './post.js';
 
 User.hasMany(Post, { as: 'posts', foreignKey: 'userId' });

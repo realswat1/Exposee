@@ -1,12 +1,23 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { User } from '../models/user.js';
+import { User } from '../models/users.js';
 import { Op } from 'sequelize';
 
 const router = express.Router();
 
+
+router.get ('/user', async(req,res)=> {
+  
+  
+  const users = await User.findAll();
+  console.log(users)
+  res.status(200).json(users);
+  
+     });
+  
+   
 // Route for user registration
-router.post('/users', async (req, res) => {
+router.post('/user', async (req, res) => {
   const { username, password, email } = req.body;
 
   try {
@@ -57,6 +68,8 @@ router.post('/users/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
+  
+
     // Set the user in the session
     req.session.user = user;
 
@@ -66,6 +79,8 @@ router.post('/users/login', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
   }
+
+
 });
 
 export default router;
