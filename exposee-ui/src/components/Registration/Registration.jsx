@@ -1,28 +1,38 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Registration.css'
-import { UserContext } from '../../UserContext.js';
+
+import '../Registration/Registration.css'
+import { UserContext } from '../../UserContext';
+
 
 const Registration = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { updateUser } = useContext(UserContext);
-  const navigate = useNavigate();
+
+
+  // const updateUser  = 
+  // useContext(UserContext);
+  //const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       // Make the signup API request
-      const response = await fetch(`http://localhost:5173/users`, {
+
+      const response = await fetch(`http://localhost:3000/user`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password }),
+
+        body: JSON.stringify({ username, email, password}),
         credentials: 'include'
+        
       });
 
       if (response.ok) {
@@ -37,7 +47,9 @@ const Registration = () => {
         setPassword('');
 
         // Update the user context
+
         updateUser(loggedInUser);
+
 
         // Navigate to the home page after successful login
         navigate('/');
@@ -52,8 +64,9 @@ const Registration = () => {
   };
 
   return (
-    <div className="signup-form-container">
-      <form className="signup-form" onSubmit={handleSubmit}>
+    
+    <div className="registration-form-container">
+      <form className="registration-form" onSubmit={handleSubmit}>
         <h2>Sign Up</h2>
         <div className="form-group">
           <label htmlFor="username">Username:</label>
@@ -65,7 +78,8 @@ const Registration = () => {
             required
           />
         </div>
-        <div className="form-group">
+
+         <div className="form-group"> 
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -87,11 +101,12 @@ const Registration = () => {
         </div>
         <button type="submit">Sign Up</button>
         <p>
-          Already have an account? <Link to="/login">Log In</Link>
+          {/* Already have an account? <Link to="/login">Log In</Link> */}
         </p>
       </form>
     </div>
   );
+
 };
 
 export default Registration;
