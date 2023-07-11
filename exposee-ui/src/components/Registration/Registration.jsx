@@ -23,11 +23,10 @@ const Registration = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: username, email: email, password: password}),
+        body: JSON.stringify({ username, email, password}),
         credentials: 'include'
         
       });
-console.log("HWY",response);
       if (response.ok) {
         const data = await response.json();
         const loggedInUser = data.user;
