@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
 import '../Registration/Registration.css'
 import { UserContext } from '../../UserContext';
+
 
 const Registration = () => {
   const [username, setUsername] = useState('');
@@ -9,24 +11,30 @@ const Registration = () => {
   const [password, setPassword] = useState('');
 
 
+
   // const updateUser  = 
   // useContext(UserContext);
   //const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       // Make the signup API request
+
       const response = await fetch(`http://localhost:3000/user`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+
         body: JSON.stringify({ username, email, password}),
         credentials: 'include'
         
       });
+
       if (response.ok) {
         const data = await response.json();
         const loggedInUser = data.user;
@@ -39,7 +47,9 @@ const Registration = () => {
         setPassword('');
 
         // Update the user context
-        useContext(loggedInUser);
+
+        updateUser(loggedInUser);
+
 
         // Navigate to the home page after successful login
         navigate('/');
@@ -68,6 +78,7 @@ const Registration = () => {
             required
           />
         </div>
+
          <div className="form-group"> 
           <label htmlFor="email">Email:</label>
           <input
@@ -94,7 +105,8 @@ const Registration = () => {
         </p>
       </form>
     </div>
-  )
+  );
+
 };
 
 export default Registration;
