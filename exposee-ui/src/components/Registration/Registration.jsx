@@ -1,12 +1,15 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
 import '../Registration/Registration.css'
 import { UserContext } from '../../UserContext';
+
 
 const Registration = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
 
 
   // const updateUser  = 
@@ -18,16 +21,19 @@ const Registration = () => {
 
     try {
       // Make the signup API request
+
       const response = await fetch(`http://localhost:3000/user`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+
         body: JSON.stringify({ username: username, email: email, password: password}),
         credentials: 'include'
         
       });
-console.log("HWY",response);
+
       if (response.ok) {
         const data = await response.json();
         const loggedInUser = data.user;
@@ -40,7 +46,9 @@ console.log("HWY",response);
         setPassword('');
 
         // Update the user context
+
         useContext(loggedInUser);
+
 
         // Navigate to the home page after successful login
         navigate('/');
@@ -69,6 +77,7 @@ console.log("HWY",response);
             required
           />
         </div>
+
          <div className="form-group"> 
           <label htmlFor="email">Email:</label>
           <input
