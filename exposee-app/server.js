@@ -7,6 +7,7 @@ import { sequelize } from './database.js';
 import { User, Post } from './models/index.js';
 import userRoutes from './Routes/user.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
+import { video } from './models/video.js';
 
 const app = express();
 
@@ -41,20 +42,21 @@ sessionStore.sync();
 app.use(userRoutes);
 
 // Route to get all posts, with associated users
-app.get('/posts', async (req, res) => {
+app.get('/videos', async (req, res) => {
   try {
-    const posts = await Post.findAll({
+    const vidoes = await video.findAll({
       include: [{ model: User, as: 'user' }],
       order: [['createdAt', 'DESC']]
     });
-    res.json(posts);
+    res.json(vidoes);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
 
 // Route to create a new post
-app.post('/posts', async (req, res) => {
+app.post('/videos', async (req, res) => {
   try {
     // Check if user is logged in
     if (!req.session.user) {
@@ -65,17 +67,17 @@ app.post('/posts', async (req, res) => {
     const currentUser = req.session.user;
 
     // Create the post with the current user ID
-    const post = await Post.create({
+    const video = await video.create({
       ...req.body,
       userId: currentUser.id
     });
 
-    const postWithUser = await Post.findOne({
-      where: { id: post.id },
+    const videoWithUser = await video.findOne({
+      where: { id: video.id },
       include: [{ model: User, as: 'user' }]
     });
 
-    res.status(201).json(postWithUser);
+    res.status(201).json(videoWithUser);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

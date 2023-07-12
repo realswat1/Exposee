@@ -1,13 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../database.js';
 
-export const Post = sequelize.define('Post', {
+export const video = sequelize.define('Video', {
   title: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  content: {
-    type: DataTypes.TEXT,
+  URL: {
+    type: DataTypes.STRING,
     allowNull: false
   }
 });
