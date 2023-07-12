@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Registration from './components/Registration/Registration' 
+import Login from './components/Login/Login' 
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
