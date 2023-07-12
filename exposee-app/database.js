@@ -5,4 +5,3 @@ export const sequelize = new Sequelize('exposeedb', 'exposeedbuser', 'iamtheSwat
   host: 'localhost',
   dialect: 'postgres'
 });
-
