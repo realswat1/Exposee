@@ -4,10 +4,10 @@ import session from 'express-session';
 import cors from 'cors';
 import morgan from 'morgan';
 import { sequelize } from './database.js';
-import { User, Post } from './models/index.js';
-import userRoutes from './Routes/user.js';
+import { User, Video } from './models/index.js';
+import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
-import { video } from './models/video.js';
+// import { Video } from './models/video.js';
 
 const app = express();
 
@@ -44,11 +44,11 @@ app.use(userRoutes);
 // Route to get all posts, with associated users
 app.get('/videos', async (req, res) => {
   try {
-    const vidoes = await video.findAll({
+    const videos = await Video.findAll({
       include: [{ model: User, as: 'user' }],
       order: [['createdAt', 'DESC']]
     });
-    res.json(vidoes);
+    res.json(videos);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
