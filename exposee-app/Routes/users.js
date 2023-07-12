@@ -50,7 +50,7 @@ router.post('/user', async (req, res) => {
 });
 
 // Route for user login
-router.post('/users/login', async (req, res) => {
+router.post('/user/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {

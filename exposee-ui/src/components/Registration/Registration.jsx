@@ -1,9 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
 import '../Registration/Registration.css'
 import { UserContext } from '../../UserContext';
-
 
 const Registration = () => {
   const [username, setUsername] = useState('');
@@ -15,7 +13,6 @@ const Registration = () => {
   // const updateUser  = 
   // useContext(UserContext);
   //const navigate = useNavigate();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +27,7 @@ const Registration = () => {
           'Content-Type': 'application/json',
         },
 
-        body: JSON.stringify({ username, email, password}),
+        body: JSON.stringify({ username: username, email: email, password: password}),
         credentials: 'include'
         
       });
@@ -48,8 +45,7 @@ const Registration = () => {
 
         // Update the user context
 
-        updateUser(loggedInUser);
-
+        useContext(loggedInUser);
 
         // Navigate to the home page after successful login
         navigate('/');
@@ -78,7 +74,6 @@ const Registration = () => {
             required
           />
         </div>
-
          <div className="form-group"> 
           <label htmlFor="email">Email:</label>
           <input
@@ -105,8 +100,7 @@ const Registration = () => {
         </p>
       </form>
     </div>
-  );
-
+  )
 };
 
 export default Registration;
