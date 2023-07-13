@@ -37,52 +37,70 @@ app.use(
     }
   })
 );
+ 
 sessionStore.sync();
 
 app.use(userRoutes);
 
-// Route to get all posts, with associated users
-app.get('/videos', async (req, res) => {
-  try {
-    const videos = await Video.findAll({
-      include: [{ model: User, as: 'user' }],
-      order: [['createdAt', 'DESC']]
-    });
-    res.json(videos);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-});
 
-// Route to create a new post
+app.get('/videos', async (req, res) => {
+
+  try {
+    const videos = await Video.findAll();
+    console.log(videos)
+  res.json(videos)}
+   catch (err) {
+  console.error(err);
+  res.status(500).json({ message: err.message });
+   }}
+)
 app.post('/videos', async (req, res) => {
   try {
-    // Check if user is logged in
-    if (!req.session.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Retrieve the current user from the session
-    const currentUser = req.session.user;
-
-    // Create the post with the current user ID
-    const video = await video.create({
-      ...req.body,
-      userId: currentUser.id
-    });
-
-    const videoWithUser = await video.findOne({
-      where: { id: video.id },
-      include: [{ model: User, as: 'user' }]
-    });
-
-    res.status(201).json(videoWithUser);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const {title ,url} = req.body;
+    const videos = await Video.create({title, url})
+    res.status(201).json(videos);
+  } catch(error){
+  console.error(error);
+  res.status(500).json({ message: error.message });
   }
 });
 
+app.get('/videos/:id', async(req,res) => {
+
+  try {
+    const videoId = req.params.id;
+    const videos = await Video.findByPk(videoId)
+    if (videos){
+  res.json(videos);
+}else  {
+  res.status(404).json({ error:' Video not Found' });
+}
+  }catch (error){
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/videos/:id', async(req,res) => {
+
+  try {
+    const videoId = req.params.id;
+    const {title,url}=  req.body;
+    const videos = await Video.findByPk(videoId);
+    if (videos){
+  videos.title = title;
+  videos.url = url;
+  await videos.save();
+
+  res.json(videos)
+}else  {
+  res.status(404).json({ error:' Video not Found' });
+}
+  }catch (error){
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 sequelize.sync({ alter: true })
   .then(() => {
     const port = 3000;

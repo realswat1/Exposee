@@ -6,7 +6,7 @@ export const Video = sequelize.define('Video', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  URL: {
+  url: {
     type: DataTypes.STRING,
     allowNull: false
   }
