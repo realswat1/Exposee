@@ -4,7 +4,7 @@ import { UserContext } from "../../UserContext";
 import { Link } from "react-router-dom";
 
 function Main() {
-  // const {User, updateUser} = useContext(UserContext);
+  const {user, updateUser} = useContext(UserContext);
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -45,17 +45,17 @@ function Main() {
   return (
     <div className="main">
       <header className="header">
-        {/* <div className="user-info"> 
-           {User ? ( 
+         <div className="user-info"> 
+           {user ? ( 
             <>
-              <span>Hi {User.username}! |</span>
+              <span>Hi {user.username}! |</span>
                <Link to= "/profile"> Go to profile Page</Link> 
               <button onClick={handleLogout}>Logout</button>
             </>
           ) : (
             <Link to="/login">Login</Link>
           )}
-          </div>*/}
+          </div>
       </header>
       <div
         className="video-list"
