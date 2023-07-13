@@ -46,9 +46,9 @@ app.use(userRoutes);
 app.get('/videos', async (req, res) => {
 
   try {
-    const videos = await Video.findAll();
-    console.log(videos)
-  res.json(videos)}
+    const video = await Video.findAll();
+    console.log(video)
+  res.json(video)}
    catch (err) {
   console.error(err);
   res.status(500).json({ message: err.message });
@@ -57,8 +57,8 @@ app.get('/videos', async (req, res) => {
 app.post('/videos', async (req, res) => {
   try {
     const {title ,url} = req.body;
-    const videos = await Video.create({title, url})
-    res.status(201).json(videos);
+    const video = await Video.create({title, url})
+    res.status(201).json(video);
   } catch(error){
   console.error(error);
   res.status(500).json({ message: error.message });
@@ -69,9 +69,9 @@ app.get('/videos/:id', async(req,res) => {
 
   try {
     const videoId = req.params.id;
-    const videos = await Video.findByPk(videoId)
-    if (videos){
-  res.json(videos);
+    const video = await Video.findByPk(videoId)
+    if (video){
+  res.json(video);
 }else  {
   res.status(404).json({ error:' Video not Found' });
 }
@@ -86,13 +86,13 @@ app.post('/videos/:id', async(req,res) => {
   try {
     const videoId = req.params.id;
     const {title,url}=  req.body;
-    const videos = await Video.findByPk(videoId);
-    if (videos){
-  videos.title = title;
-  videos.url = url;
-  await videos.save();
+    const video = await Video.findByPk(videoId);
+    if (video){
+  video.title = title;
+  video.url = url;
+  await video.save();
 
-  res.json(videos)
+  res.json(video)
 }else  {
   res.status(404).json({ error:' Video not Found' });
 }

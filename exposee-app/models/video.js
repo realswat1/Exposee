@@ -15,7 +15,7 @@ export const Video = sequelize.define('Video', {
     allowNull:false
 
   },
-  user_id:{
+  userId:{
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -35,7 +35,7 @@ export const Video = sequelize.define('Video', {
     type: DataTypes.DATE,
     allowNull: false
   },
-  API_key:{
+  api_key:{
     type: DataTypes.STRING,
     allowNull: false
   },
