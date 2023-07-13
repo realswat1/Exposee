@@ -1,7 +1,7 @@
 import "./main.css";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../UserContext.js";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 function Main() {
   const { user, updateUser } = useContext(UserContext);

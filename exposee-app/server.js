@@ -5,7 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { sequelize } from './database.js';
 import { User, Post } from './models/index.js';
-import userRoutes from './Routes/user.js';
+import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
 
 const app = express();
