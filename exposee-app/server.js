@@ -4,9 +4,10 @@ import session from 'express-session';
 import cors from 'cors';
 import morgan from 'morgan';
 import { sequelize } from './database.js';
-import { User, Post } from './models/index.js';
-import userRoutes from './Routes/user.js';
+import { User, Video } from './models/index.js';
+import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
+// import { Video } from './models/video.js';
 
 const app = express();
 
@@ -36,51 +37,70 @@ app.use(
     }
   })
 );
+ 
 sessionStore.sync();
 
 app.use(userRoutes);
 
-// Route to get all posts, with associated users
-app.get('/posts', async (req, res) => {
+
+app.get('/videos', async (req, res) => {
+
   try {
-    const posts = await Post.findAll({
-      include: [{ model: User, as: 'user' }],
-      order: [['createdAt', 'DESC']]
-    });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const video = await Video.findAll();
+    console.log(video)
+  res.json(video)}
+   catch (err) {
+  console.error(err);
+  res.status(500).json({ message: err.message });
+   }}
+)
+app.post('/videos', async (req, res) => {
+  try {
+    const {title ,url} = req.body;
+    const video = await Video.create({title, url})
+    res.status(201).json(video);
+  } catch(error){
+  console.error(error);
+  res.status(500).json({ message: error.message });
   }
 });
 
-// Route to create a new post
-app.post('/posts', async (req, res) => {
+app.get('/videos/:id', async(req,res) => {
+
   try {
-    // Check if user is logged in
-    if (!req.session.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Retrieve the current user from the session
-    const currentUser = req.session.user;
-
-    // Create the post with the current user ID
-    const post = await Post.create({
-      ...req.body,
-      userId: currentUser.id
-    });
-
-    const postWithUser = await Post.findOne({
-      where: { id: post.id },
-      include: [{ model: User, as: 'user' }]
-    });
-
-    res.status(201).json(postWithUser);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const videoId = req.params.id;
+    const video = await Video.findByPk(videoId)
+    if (video){
+  res.json(video);
+}else  {
+  res.status(404).json({ error:' Video not Found' });
+}
+  }catch (error){
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+app.post('/videos/:id', async(req,res) => {
+
+  try {
+    const videoId = req.params.id;
+    const {title,url}=  req.body;
+    const video = await Video.findByPk(videoId);
+    if (video){
+  video.title = title;
+  video.url = url;
+  await video.save();
+
+  res.json(video)
+}else  {
+  res.status(404).json({ error:' Video not Found' });
+}
+  }catch (error){
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 sequelize.sync({ alter: true })
   .then(() => {
     const port = 3000;

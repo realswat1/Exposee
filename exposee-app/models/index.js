@@ -1,7 +1,7 @@
 import { User } from './users.js';
-import { Post } from './post.js';
+import { Video } from './video.js';
 
-User.hasMany(Post, { as: 'posts', foreignKey: 'userId' });
-Post.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+User.hasMany(Video, { as: 'videos', foreignKey: 'userId' });
+Video.belongsTo(User, { as: 'user', foreignKey: 'userId' });
 
-export { User, Post };
+export { User, Video };
