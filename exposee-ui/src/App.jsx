@@ -2,10 +2,10 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import { UserContext } from './UserContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Main from './components/Main/Main'
-import Login from './components/Login/Login';
-import Registration from './components/Registration/Registration';
 
+import Main from '../src/components/Mainpage/Main'
+import Login from '../src/components/Login/Login';
+import Registration from '../src/components/Registration/Registration';
 function App() {
   const [user, setUser] = useState(() => {
     // Retrieve the user data from storage or set it to null if not found
@@ -28,8 +28,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={ <Main /> } />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Registration />} />
+            <Route path="/Login" element={<Login />} />
+            <Route path="/Registration" element={<Registration />} />
           </Routes>
         </BrowserRouter>
       </UserContext.Provider>

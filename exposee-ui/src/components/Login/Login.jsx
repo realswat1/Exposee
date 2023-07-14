@@ -1,14 +1,14 @@
 import React, { useState, useContext } from 'react';
-// import { Link, useNavigate } from 'react-router-dom';
-//import { UserContext }  from '../../UserContext';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserContext }  from '../../UserContext';
 import '../Login/Login.css'
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  //const { updateUser } = useContext(UserContext);
+  const { updateUser } = useContext(UserContext);
 
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -69,7 +69,7 @@ const Login = () => {
         </div>
         <button type="submit">Login</button>
         <p>
-          {/* New to the app? <Link to="/Registration">Sign Up</Link> */}
+          New to the app? <Link to="/Registration">Sign Up</Link>
         </p>
       </form>
     </div>
