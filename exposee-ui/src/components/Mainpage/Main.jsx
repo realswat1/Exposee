@@ -5,16 +5,14 @@ import { Link } from "react-router-dom";
 
 function Main() {
   const {user, updateUser} = useContext(UserContext);
- 
-
   const handleLogout = () => {
-
     updateUser(null);
   };
 
   return (
     <div className="main">
       <header className="header">
+
          <div className="user-info"> 
            {user ? ( 
             <>
@@ -27,7 +25,6 @@ function Main() {
           )}
           </div>
       </header>
-   
     </div>
   );
 }

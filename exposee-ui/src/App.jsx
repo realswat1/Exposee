@@ -2,10 +2,10 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import { UserContext } from './UserContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import Main from '../src/components/Mainpage/Main'
 import Login from '../src/components/Login/Login';
 import Registration from '../src/components/Registration/Registration';
-
 function App() {
   const [user, setUser] = useState(() => {
     // Retrieve the user data from storage or set it to null if not found
