@@ -4,6 +4,7 @@ import session from 'express-session';
 import cors from 'cors';
 import morgan from 'morgan';
 import { sequelize } from './database.js';
+
 import { User, Video } from './models/index.js';
 import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';

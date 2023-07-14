@@ -1,0 +1,30 @@
+.main {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .user-info a {
+    margin-top: 10px;
+    margin-right: 20px;
+  }
+  
+  .user-info button {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-right: 10px; /* Adjust the margin value as needed */
+  }

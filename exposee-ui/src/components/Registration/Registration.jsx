@@ -10,9 +10,8 @@ const Registration = () => {
 
 
 
-  // const updateUser  = 
-  // useContext(UserContext);
-  //const navigate = useNavigate();
+  const { updateUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,7 +44,7 @@ const Registration = () => {
 
         // Update the user context
 
-        useContext(loggedInUser);
+        updateUser(loggedInUser);
 
         // Navigate to the home page after successful login
         navigate('/');
@@ -96,7 +95,7 @@ const Registration = () => {
         </div>
         <button type="submit">Sign Up</button>
         <p>
-          {/* Already have an account? <Link to="/login">Log In</Link> */}
+          Already have an account? <Link to="/login">Log In</Link>
         </p>
       </form>
     </div>
