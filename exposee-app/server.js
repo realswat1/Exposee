@@ -63,7 +63,7 @@ try{
   const userId = req.params.id;
   const user = await User.findOne({where: {id: userId}});
   console.log(user);
-  if (user && user.profilePicture){
+  if (user && user.profile_Picture){
     return res.status(400).json({message: 'user already has a profile picture'});
   }
   const filePath = req.file ? req.file.path: null;
@@ -71,7 +71,7 @@ try{
   if(!filePath){
     return res.status(400).json({message: 'no file uploaded'});
   }
-  await User.update({profilePicture: filePath}, {where: {id: userId}});
+  await User.update({profile_Picture: filePath}, {where: {id: userId}});
   console.log(filePath);
   res.status(200).json({message: 'Profile picture upload successfully'});
 }catch(error){
@@ -113,21 +113,7 @@ app.post('/videos', async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
-app.post('/broadcast', async (req, res)=> {
-  const userId = req.body.id;
-  try{
-    const user = await User.findByPk(userId);
-    if(!user){
-      return res.status(404).json({message: 'User not found'});
-    }
-    user.isLive = true;
-    await user.save();
-    res.json({message: 'You are live'});
-  }catch (error){
-    console.error('error going live: ', error);
-    res.status(500).json({message: 'Error going live'});
-  }
-});
+
 app.get('/videos/:id', async(req,res) => {
 
   try {
