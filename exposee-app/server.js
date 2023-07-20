@@ -38,7 +38,6 @@ const storage = multer.diskStorage({
   },
 });
 
-
 const upload= multer({storage});
 // Session middleware
 app.use(
