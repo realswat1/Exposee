@@ -12,7 +12,6 @@ function Main() {
   return (
     <div className="main">
       <header className="header">
-
          <div className="user-info"> 
            {user ? ( 
             <>
