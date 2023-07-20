@@ -9,22 +9,21 @@ const Profilepage = ()=> {
     useEffect (() => {
         const fetchUserProfile = async ()=>{
         try {
-            const response = await axios.get('/profile/:id');
-            setUser(response.data);
+            const response = await fetch(`http://localhost:3000/profile/${user.id}`);
         }catch(error){
             console.error('Error fetching user profile: ', error);
         }
     };
     fetchUserProfile();
-    }, [setUser]);
+    }, []);
     const handleBroadcast = async () => {
         try {
-            const response = await axios.post('/broadcast');
-            console.log(response.data.message);
+            const response = await fetch ('/broadcast');
+            console.log(Response.data);
         }catch (error){
             console.error('Error going live: ', error);
         }
-    };
+    }; console.log(user.profilePicture)
     if (!user){
         return <div>Loading...</div>;
     }
