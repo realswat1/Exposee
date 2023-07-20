@@ -1,6 +1,7 @@
 import { DATE, DataTypes } from 'sequelize';
 import { sequelize } from '../database.js';
 
+
 export const Video = sequelize.define('Video', {
   title: {
     type: DataTypes.STRING,
@@ -11,17 +12,13 @@ export const Video = sequelize.define('Video', {
     allowNull: true
   },
   duration: { 
-    type: DataTypes.DATE,
+    type: DataTypes.INTEGER,
     allowNull:false
 
   },
   userId:{
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  created_at: {
-    type: DataTypes.TIME,
-    allowNull: false 
   },
   is_live: {
     type: DataTypes.BOOLEAN,
@@ -31,10 +28,6 @@ export const Video = sequelize.define('Video', {
     type: DataTypes.BOOLEAN,
     allowNull: false
   },
-  updated_at:{
-    type: DataTypes.DATE,
-    allowNull: false
-  },
   api_key:{
     type: DataTypes.STRING,
     allowNull: false
@@ -42,5 +35,11 @@ export const Video = sequelize.define('Video', {
   url: {
     type: DataTypes.STRING,
     allowNull: false
-  }
-});
+  },
+},{
+  timestamps: true,
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+}
+);
+

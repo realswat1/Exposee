@@ -38,6 +38,7 @@ const storage = multer.diskStorage({
   },
 });
 
+
 const upload= multer({storage});
 // Session middleware
 app.use(
@@ -112,6 +113,33 @@ app.post('/videos', async (req, res) => {
   console.error(error);
   res.status(500).json({ message: error.message });
   }
+});
+app.post('/broadcast', async (req, res)=> {
+  try {
+    const {url, description, duration, userId, api_key} = req.body;
+    if (!url|| !description|| !duration || !userId||!api_key)
+    {
+     return res.status(400).json({error: 'all fields are required'})
+    }
+    const user = await User.findByPk(userId);
+    if (!user){
+      return res.status(404).json({error: 'user not found'});
+    }
+    const video = await Video.create({
+      title: "STREAM",
+      url,
+      description,
+      userId,
+      duration,
+      api_key,
+      is_live: true,
+      is_saved: true,
+    })
+    res.status(201).json(video);
+  } catch(error){
+  console.error(error);
+  res.status(500).json({ message: error.message });
+  }  
 });
 
 app.get('/videos/:id', async(req,res) => {
