@@ -38,6 +38,20 @@ const storage = multer.diskStorage({
   },
 });
 
+function verifytoken(req, res, next){
+  const token = req. header('Authorization');
+  if(!token){
+    return res.status(401).json({error:'Acess denied. No token provided'});
+  }
+  jwt.verify(token, secretKey, (err,decoded)=>{
+    if(err){
+      return res.status(401).json({error:'invalid token'});
+    }
+    req.userId=decoded.userId;
+    next();
+  });
+}
+
 const upload= multer({storage});
 // Session middleware
 app.use(
@@ -116,21 +130,36 @@ app.post('/videos', async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
-app.post('/broadcast', async (req, res)=> {
-  const userId = req.body.id;
-  try{
-    const user = await User.findByPk(userId);
-    if(!user){
-      return res.status(404).json({message: 'User not found'});
+
+app.post('/broadcast',verifytoken, async (req, res)=> {
+  try {
+    const {url, description, duration, api_key} = req.body;
+    const userId = req.userId
+    if (!url|| !description|| !duration || !userId||!api_key)
+    {
+     return res.status(400).json({error: 'all fields are required'})
     }
-    user.isLive = true;
-    await user.save();
-    res.json({message: 'You are live'});
-  }catch (error){
-    console.error('error going live: ', error);
-    res.status(500).json({message: 'Error going live'});
-  }
+    const user = await User.findByPk(userId);
+    if (!user){
+      return res.status(404).json({error: 'user not found'});
+    }
+    const video = await Video.create({
+      title: "STREAM",
+      url,
+      description,
+      userId,
+      duration,
+      api_key,
+      is_live: true,
+      is_saved: true,
+    })
+    res.status(201).json(video);
+  } catch(error){
+  console.error(error);
+  res.status(500).json({ message: error.message });
+  }  
 });
+
 app.get('/videos/:id', async(req,res) => {
 
   try {
