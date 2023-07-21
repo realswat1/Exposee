@@ -37,7 +37,6 @@ const storage = multer.diskStorage({
     cb(null, file.fieldname + '_' + uniqueSuffix);
   },
 });
-const securitykey = 'your_security_key';
 
 function verifytoken(req, res, next){
   const token = req. header('Authorization');
