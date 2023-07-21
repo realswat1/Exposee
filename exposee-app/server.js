@@ -77,6 +77,7 @@ try{
   const userId = req.params.id;
   const user = await User.findOne({where: {id: userId}});
   console.log(user);
+
   if (user && user.profile_Picture){
     return res.status(400).json({message: 'user already has a profile picture'});
   }
@@ -85,7 +86,9 @@ try{
   if(!filePath){
     return res.status(400).json({message: 'no file uploaded'});
   }
+
   await User.update({profile_Picture: filePath}, {where: {id: userId}});
+
   console.log(filePath);
   res.status(200).json({message: 'Profile picture upload successfully'});
 }catch(error){
@@ -127,6 +130,7 @@ app.post('/videos', async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
+
 app.post('/broadcast',verifytoken, async (req, res)=> {
   try {
     const {url, description, duration, api_key} = req.body;
