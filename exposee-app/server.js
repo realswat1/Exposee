@@ -37,7 +37,21 @@ const storage = multer.diskStorage({
     cb(null, file.fieldname + '_' + uniqueSuffix);
   },
 });
+const securitykey = 'your_security_key';
 
+function verifytoken(req, res, next){
+  const token = req. header('Authorization');
+  if(!token){
+    return res.status(401).json({error:'Acess denied. No token provided'});
+  }
+  jwt.verify(token, secretKey, (err,decoded)=>{
+    if(err){
+      return res.status(401).json({error:'invalid token'});
+    }
+    req.userId=decoded.userId;
+    next();
+  });
+}
 
 const upload= multer({storage});
 // Session middleware
@@ -114,9 +128,10 @@ app.post('/videos', async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
-app.post('/broadcast', async (req, res)=> {
+app.post('/broadcast',verifytoken, async (req, res)=> {
   try {
-    const {url, description, duration, userId, api_key} = req.body;
+    const {url, description, duration, api_key} = req.body;
+    const userId = req.userId
     if (!url|| !description|| !duration || !userId||!api_key)
     {
      return res.status(400).json({error: 'all fields are required'})
