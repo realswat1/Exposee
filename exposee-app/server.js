@@ -64,6 +64,7 @@ try{
   const user_Id = req.params.id;
   const user = await User.findOne({where: {id: user_Id}});
   console.log(user);
+
   if (user && user.profile_Picture){
     return res.status(400).json({message: 'user already has a profile picture'});
   }
@@ -145,7 +146,6 @@ app.post('/broadcast', async (req, res)=> {
 });
 
 app.get('/videos/:id', async(req,res) => {
-
   try {
     const video_Id = req.params.id;
     const video = await Video.findByPk(video_Id)
@@ -161,7 +161,6 @@ app.get('/videos/:id', async(req,res) => {
 });
 
 app.post('/videos/:id', async(req,res) => {
-
   try {
     const video_Id = req.params.id;
     const {title,url}=  req.body;

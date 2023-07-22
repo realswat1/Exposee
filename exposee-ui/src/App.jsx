@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Main from '../src/components/Mainpage/Main'
 import Login from '../src/components/Login/Login';
 import Registration from '../src/components/Registration/Registration';
+import Profilepage from './components/Profilepage/Profile';
 function App() {
   const [user, setUser] = useState(() => {
     // Retrieve the user data from storage or set it to null if not found
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={ <Main /> } />
             <Route path="/Login" element={<Login />} />
             <Route path="/Registration" element={<Registration />} />
+            <Route path="/profile" element ={<Profilepage />}/>
           </Routes>
         </BrowserRouter>
       </UserContext.Provider>
