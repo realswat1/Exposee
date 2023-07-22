@@ -67,11 +67,10 @@ router.post('/user/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
-
   
-
     // Set the user in the session
     req.session.user = user;
+   
 
     // Return the user data in the response
     res.json({ user });

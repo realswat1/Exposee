@@ -16,7 +16,7 @@ export const Video = sequelize.define('Video', {
     allowNull:false
 
   },
-  userId:{
+  user_Id:{
     type: DataTypes.INTEGER,
     allowNull: false,
   },

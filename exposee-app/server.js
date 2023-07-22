@@ -38,19 +38,6 @@ const storage = multer.diskStorage({
   },
 });
 
-function verifytoken(req, res, next){
-  const token = req. header('Authorization');
-  if(!token){
-    return res.status(401).json({error:'Acess denied. No token provided'});
-  }
-  jwt.verify(token, secretKey, (err,decoded)=>{
-    if(err){
-      return res.status(401).json({error:'invalid token'});
-    }
-    req.userId=decoded.userId;
-    next();
-  });
-}
 
 const upload= multer({storage});
 // Session middleware
@@ -74,8 +61,8 @@ app.use(userRoutes);
 
 app.post('/upload-profile-pic/:id', upload.single('profilePicture'), async (req, res)=>{
 try{
-  const userId = req.params.id;
-  const user = await User.findOne({where: {id: userId}});
+  const user_Id = req.params.id;
+  const user = await User.findOne({where: {id: user_Id}});
   console.log(user);
   if (user && user.profile_Picture){
     return res.status(400).json({message: 'user already has a profile picture'});
@@ -85,7 +72,7 @@ try{
   if(!filePath){
     return res.status(400).json({message: 'no file uploaded'});
   }
-  await User.update({profile_Picture: filePath}, {where: {id: userId}});
+  await User.update({profile_Picture: filePath}, {where: {id: user_Id}});
   console.log(filePath);
   res.status(200).json({message: 'Profile picture upload successfully'});
 }catch(error){
@@ -94,9 +81,9 @@ try{
 }
 });
 app.get('/profile/:id', async(req,res)=> {
-  const userId = req.params.id;
+  const user_Id = req.params.id;
   try {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(user_Id);
     if (!user){
       return res.status(404).json({message: 'User not found'});
     }
@@ -127,28 +114,29 @@ app.post('/videos', async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
-app.post('/broadcast',verifytoken, async (req, res)=> {
+app.post('/broadcast', async (req, res)=> {
   try {
-    const {url, description, duration, api_key} = req.body;
-    const userId = req.userId
-    if (!url|| !description|| !duration || !userId||!api_key)
+    const {url, user_Id, description, duration, api_key} = req.body;
+  
+
+    if (!url|| !description|| !duration || !user_Id||!api_key)
     {
      return res.status(400).json({error: 'all fields are required'})
     }
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(user_Id);
     if (!user){
       return res.status(404).json({error: 'user not found'});
     }
     const video = await Video.create({
       title: "STREAM",
       url,
+      user_Id,
       description,
-      userId,
       duration,
       api_key,
       is_live: true,
       is_saved: true,
-    })
+    });
     res.status(201).json(video);
   } catch(error){
   console.error(error);
@@ -159,8 +147,8 @@ app.post('/broadcast',verifytoken, async (req, res)=> {
 app.get('/videos/:id', async(req,res) => {
 
   try {
-    const videoId = req.params.id;
-    const video = await Video.findByPk(videoId)
+    const video_Id = req.params.id;
+    const video = await Video.findByPk(video_Id)
     if (video){
   res.json(video);
 }else  {
@@ -175,9 +163,9 @@ app.get('/videos/:id', async(req,res) => {
 app.post('/videos/:id', async(req,res) => {
 
   try {
-    const videoId = req.params.id;
+    const video_Id = req.params.id;
     const {title,url}=  req.body;
-    const video = await Video.findByPk(videoId);
+    const video = await Video.findByPk(video_Id);
     if (video){
   video.title = title;
   video.url = url;
