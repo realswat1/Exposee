@@ -40,6 +40,21 @@ const storage = multer.diskStorage({
 });
 
 
+function verifytoken(req, res, next){
+  const token = req. header('Authorization');
+  if(!token){
+    return res.status(401).json({error:'Acess denied. No token provided'});
+  }
+  jwt.verify(token, secretKey, (err,decoded)=>{
+    if(err){
+      return res.status(401).json({error:'invalid token'});
+    }
+    req.userId=decoded.userId;
+    next();
+  });
+}
+
+
 const upload= multer({storage});
 // Session middleware
 app.use(
@@ -116,6 +131,7 @@ app.post('/videos', validate_Token,async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
+
 app.post('/broadcast',validate_Token, async (req, res)=> {
   try {
     const {url, user_Id, description, duration, api_key} = req.body;
@@ -138,6 +154,7 @@ app.post('/broadcast',validate_Token, async (req, res)=> {
       api_key,
       is_live: true,
       is_saved: true,
+
     });
     res.status(201).json(video);
   } catch(error){
