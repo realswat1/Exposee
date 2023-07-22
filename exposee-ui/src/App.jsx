@@ -7,11 +7,12 @@ import Main from '../src/components/Mainpage/Main'
 import Login from '../src/components/Login/Login';
 import Registration from '../src/components/Registration/Registration';
 import Profilepage from './components/Profilepage/Profile';
+
 function App() {
   const [user, setUser] = useState(() => {
     // Retrieve the user data from storage or set it to null if not found
     const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
+    return storedUser ===null? JSON.parse(storedUser) : null;
   });
 
   const updateUser = (newUser) => {
@@ -28,10 +29,10 @@ function App() {
       <UserContext.Provider value={{ user, updateUser }}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={ <Main /> } />
+            <Route path="/" element={<Main />} />
             <Route path="/Login" element={<Login />} />
             <Route path="/Registration" element={<Registration />} />
-            <Route path="/profile" element ={<Profilepage />}/>
+            <Route path="/profile" element={<Profilepage />} />
           </Routes>
         </BrowserRouter>
       </UserContext.Provider>
