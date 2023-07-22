@@ -2,11 +2,14 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import { User } from '../models/users.js';
 import { Op } from 'sequelize';
+import pkg from 'jsonwebtoken';
+const {sign} = pkg;
+import validate_Token from "../authentoken.js";
 
 const router = express.Router();
 
 
-router.get ('/user', async(req,res)=> {
+router.get ('/user',validate_Token, async(req,res)=> {
   
   
   const users = await User.findAll();
@@ -67,16 +70,21 @@ router.post('/user/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
-  
+    const access_Token = sign({username : user.username, id:user.id}, "iamtheSwat1*");
+    const responsePayload = {
+      user: user,
+      access_token: access_Token,
+    };
     // Set the user in the session
     req.session.user = user;
-   
-
+    res.json(responsePayload);
+    // res.json({ user });
     // Return the user data in the response
-    res.json({ user });
+    // res.json({access_Token});
+    
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
+     console.error(error);
+     res.status(500).json({ error: 'Server error' });
   }
 
 

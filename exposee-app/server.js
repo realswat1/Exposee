@@ -11,6 +11,7 @@ import { User, Video } from './models/index.js';
 import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
 import { DATE } from 'sequelize';
+import validate_Token from "./authentoken.js";
 //import { Video } from './models/video.js';
 
 const app = express();
@@ -81,7 +82,7 @@ try{
   res.status(500).json({message: 'Error uploading profile picture'});
 }
 });
-app.get('/profile/:id', async(req,res)=> {
+app.get('/profile/:id', validate_Token,async(req,res)=> {
   const user_Id = req.params.id;
   try {
     const user = await User.findByPk(user_Id);
@@ -105,7 +106,7 @@ app.get('/videos', async (req, res) => {
   res.status(500).json({ message: err.message });
    }}
 )
-app.post('/videos', async (req, res) => {
+app.post('/videos', validate_Token,async (req, res) => {
   try {
     const {title ,url} = req.body;
     const video = await Video.create({title, url})
@@ -115,7 +116,7 @@ app.post('/videos', async (req, res) => {
   res.status(500).json({ message: error.message });
   }
 });
-app.post('/broadcast', async (req, res)=> {
+app.post('/broadcast',validate_Token, async (req, res)=> {
   try {
     const {url, user_Id, description, duration, api_key} = req.body;
   
@@ -145,7 +146,7 @@ app.post('/broadcast', async (req, res)=> {
   }  
 });
 
-app.get('/videos/:id', async(req,res) => {
+app.get('/videos/:id',validate_Token, async(req,res) => {
   try {
     const video_Id = req.params.id;
     const video = await Video.findByPk(video_Id)
@@ -160,7 +161,7 @@ app.get('/videos/:id', async(req,res) => {
   }
 });
 
-app.post('/videos/:id', async(req,res) => {
+app.post('/videos/:id',validate_Token, async(req,res) => {
   try {
     const video_Id = req.params.id;
     const {title,url}=  req.body;
