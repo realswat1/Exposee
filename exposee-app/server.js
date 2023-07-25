@@ -12,9 +12,19 @@ import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
 import { DATE } from 'sequelize';
 import validate_Token from "./authentoken.js";
-//import { Video } from './models/video.js';
+
+
+import dotenv from 'dotenv';
 
 const app = express();
+dotenv.config();
+import Mux from '@mux/mux-node';
+const { Video: MuxVideo }  = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
+
+await MuxVideo.LiveStreams.create({
+    playback_policy: 'public',
+    new_asset_settings: { playback_policy: 'public' }
+});
 
 app.use(cors({
   origin: 'http://localhost:5173',
