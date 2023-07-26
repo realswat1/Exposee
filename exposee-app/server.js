@@ -172,7 +172,7 @@ app.post('/videos', validate_Token,async (req, res) => {
 
 app.post('/broadcast',validate_Token, async (req, res)=> {
   try {
-    const { user_Id, description, duration, api_key} = req.body;
+    const { user_Id, description, api_key} = req.body;
   
 
     if ( !description || !user_Id||!api_key)
@@ -192,8 +192,6 @@ const response = await MuxVideo.LiveStreams.create({
 const playbackId = response.playback_ids[0].id;
 const streamKey = response.stream_key;
 const time = response.max_continuous_duration;
-console.log('hello',response)
-console.log(playbackId)
 
     const video = await Video.create({
       title: "STREAM",
