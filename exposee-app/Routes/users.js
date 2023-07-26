@@ -70,11 +70,12 @@ router.post('/user/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
-    const access_Token = sign({username : user.username, id:user.id}, "iamtheSwat1*");
-    const responsePayload = {
-      user: user,
-      access_token: access_Token,
-    };
+    const access_Token = sign({ username: user.username, id: user.id }, "iamtheSwat1*");
+  const responsePayload = {
+    user: user,
+    access_token: access_Token,
+    user_id: user.id, 
+  };
     // Set the user in the session
     req.session.user = user;
     res.json(responsePayload);
