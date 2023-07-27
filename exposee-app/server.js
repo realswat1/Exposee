@@ -29,7 +29,7 @@ const createLiveStream = async () => {
     playback_policy: 'public',
     new_asset_settings: { playback_policy: 'public' },
   });
-
+console.log(response);
   // Save the Mux API response in the PostgreSQL database
   try {
     const playbackId = response.playback_ids[0].id;
@@ -203,7 +203,7 @@ console.log('hello about to create video');
       description,
       duration: time,
       api_key:playbackId,
-      is_live: true,
+      is_live:false,
       is_saved: true,
       mux_stream_key: streamKey, 
       mux_playback_id: playbackId, 
@@ -229,6 +229,138 @@ app.get('/videos/:id',validate_Token, async(req,res) => {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+async function handleLiveStreamConnected(data) {
+  const { stream_id,stream_key } = data;
+  console.log(`Live stream connected. Stream ID: ${stream_id}`);
+  
+  try {
+    // Find the corresponding video in the database based on the stream ID
+    const video = await Video.findOne({ where: { mux_stream_key: stream_key } });
+    if (video) {
+      // Update the is_live field to true
+      await video.update({ is_live: true });
+      console.log('is_live updated to true in the database.');
+    }
+  } catch (error) {
+    console.error('Error updating is_live in the database:', error);
+  }
+}
+
+// Function to handle when the live stream is disconnected
+async function handleLiveStreamDisconnected(data) {
+  const { stream_id,stream_key } = data;
+  console.log(`Live stream disconnected. Stream ID: ${stream_id}`);
+  
+  try {
+    // Find the corresponding video in the database based on the stream ID
+    const video = await Video.findOne({ where: { mux_stream_key: stream_key } });
+    if (video) {
+      // Update the is_live field to false
+      await video.update({ is_live: false });
+      console.log('is_live updated to false in the database.');
+    }
+  } catch (error) {
+    console.error('Error updating is_live in the database:', error);
+  }
+}
+
+// Function to handle when the live stream becomes active
+async function handleLiveStreamActive(data) {
+  const { playback_id, active_asset_id } = data;
+  console.log(`Live stream active. Playback ID: ${playback_id}, Active Asset ID: ${active_asset_id}`);
+  
+  try {
+    // Find the corresponding video in the database based on the active_asset_id
+    const video = await Video.findOne({ where: { mux_playback_id: playback_id } });
+    if (video) {
+      // Update the is_live field to true
+      await video.update({ is_live: true });
+      console.log('is_live updated to true in the database.');
+    }
+  } catch (error) {
+    console.error('Error updating is_live in the database:', error);
+  }
+}
+async function handleLiveStreamIdle(data) {
+  const { playback_id, active_asset_id } = data;
+  console.log(`Live stream active. Playback ID: ${playback_id}, Active Asset ID: ${active_asset_id}`);
+  
+  try {
+    // Find the corresponding video in the database based on the active_asset_id
+    const video = await Video.findOne({ where: { mux_playback_id: playback_id } });
+    if (video) {
+      // Update the is_live field to true
+      await video.update({ is_live: false });
+      console.log('is_live updated to true in the database.');
+    }
+  } catch (error) {
+    console.error('Error updating is_live in the database:', error);
+  }
+}
+async function handleLiveStreamRecording(data) {
+  const { playback_id, active_asset_id } = data;
+  console.log(`Live stream active. Playback ID: ${playback_id}, Active Asset ID: ${active_asset_id}`);
+  
+  try {
+    // Find the corresponding video in the database based on the active_asset_id
+    const video = await Video.findOne({ where: { mux_playback_id: playback_id } });
+    if (video) {
+      // Update the is_live field to true
+      await video.update({ is_saved: true });
+      console.log('is_saved updated to true in the database.');
+    }
+  } catch (error) {
+    console.error('Error updating is_live in the database:', error);
+  }
+}
+
+// Function to handle when the asset's live stream is completed
+async function handleAssetLiveStreamCompleted(data) {
+  const { playback_id,active_asset_id } = data;
+  console.log(`Asset live stream completed. Active Asset ID: ${active_asset_id}`);
+  
+  try {
+    // Find the corresponding video in the database based on the active_asset_id
+    const video = await Video.findOne({ where: { mux_playback_id: playback_id } });
+    if (video) {
+      // Update the is_live field to false
+      await video.update({ is_live: false });
+      console.log('is_live updated to false in the database.');
+    }
+  } catch (error) {
+    console.error('Error updating is_live in the database:', error);
+  }
+}
+
+app.post('/mux-webhook', (req, res) => {
+  const { type, data } = req.body;
+  console.log(data);
+  console.log('this is a type:',type);
+  switch (type) {
+    case 'video.live_stream.connected':
+      handleLiveStreamConnected(data);
+      break;
+    case 'video.live_stream.disconnected':
+      handleLiveStreamDisconnected(data);
+      break;
+    case 'video.live_stream.recording':
+      handleLiveStreamRecording(data);
+      break;
+    case 'video.live_stream.active':
+      handleLiveStreamActive(data);
+      break;
+    case 'video.live_stream.idle':
+      handleLiveStreamIdle(data);
+      break;
+    case 'video.asset.live_stream_completed':
+      handleAssetLiveStreamCompleted(data);
+      break;
+    default:
+      console.log('Unknown event type:', type);
+  }
+
+  res.status(200).send('Thanks, Mux!');
 });
 
 app.post('/videos/:id',validate_Token, async(req,res) => {
