@@ -74,7 +74,6 @@ router.post('/user/login', async (req, res) => {
   const responsePayload = {
     user: user,
     access_token: access_Token,
-    user_id: user.id, 
   };
     // Set the user in the session
     req.session.user = user;

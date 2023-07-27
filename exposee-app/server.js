@@ -1,4 +1,3 @@
-// app.js
 import express from 'express';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -38,7 +37,7 @@ const createLiveStream = async () => {
     const liveStream = await Video.create({
       title: "STREAM",
       url: `https://stream.mux.com/${playbackId}.m3u8`,
-      user_Id: USER_ID_FROM_REQUEST,
+      user_Id,
       description: DESCRIPTION_FROM_REQUEST,
       duration: DURATION_FROM_REQUEST, 
       api_key: API_KEY_FROM_REQUEST, 
@@ -63,7 +62,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true }));
 app.use(express.json()); // Middleware for parsing JSON bodies from HTTP requests
-app.use(morgan())
+app.use(morgan());
 
 
 const SequelizeStore = SequelizeStoreInit(session.Store);
@@ -172,31 +171,35 @@ app.post('/videos', validate_Token,async (req, res) => {
 
 app.post('/broadcast',validate_Token, async (req, res)=> {
   try {
-    const { user_Id, description, api_key} = req.body;
-  
-
-    if ( !description || !user_Id||!api_key)
+    const { description } = req.body;
+    const user_Id = req.userId; // Use req.userId here instead of req.userId
+    console.log("User ID from middleware:", user_Id);
+    if ( !description)
     {
      return res.status(400).json({error: 'all fields are required'})
     }
+    console.log('fetching user');
     const user = await User.findByPk(user_Id);
+    console.log('fetching user done');
     if (!user){
       return res.status(404).json({error: 'user not found'});
     }
     const { Video: MuxVideo }  = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
-
+    console.log('creat mux video');
+    console.log(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
 const response = await MuxVideo.LiveStreams.create({
     playback_policy: 'public',
     new_asset_settings: { playback_policy: 'public' }
 });
+console.log('creat mux video done');
 const playbackId = response.playback_ids[0].id;
 const streamKey = response.stream_key;
 const time = response.max_continuous_duration;
-
+console.log('hello about to create video');
     const video = await Video.create({
       title: "STREAM",
        url: `https://stream.mux.com/${playbackId}.m3u8`,
-      user_Id,
+      user_Id: user_Id,
       description,
       duration: time,
       api_key:playbackId,
@@ -205,6 +208,7 @@ const time = response.max_continuous_duration;
       mux_stream_key: streamKey, 
       mux_playback_id: playbackId, 
     });
+    console.log(video);
     res.status(201).json(video);
   } catch(error){
   console.error(error);
@@ -256,3 +260,4 @@ sequelize.sync({ alter: true })
   .catch(error => {
     console.error('Unable to connect to the database:', error);
   });
+
