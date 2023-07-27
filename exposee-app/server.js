@@ -1,4 +1,3 @@
-// app.js
 import express from 'express';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -12,9 +11,49 @@ import userRoutes from './Routes/users.js';
 import SequelizeStoreInit from 'connect-session-sequelize';
 import { DATE } from 'sequelize';
 import validate_Token from "./authentoken.js";
-//import { Video } from './models/video.js';
+
+import dotenv from 'dotenv';
+
 
 const app = express();
+dotenv.config();
+import Mux from '@mux/mux-node';
+const createLiveStream = async () => {
+  if (!process.env.MUX_TOKEN_ID || !process.env.MUX_TOKEN_SECRET) {
+    console.error("It looks like you haven't set up your Mux token in the .env file yet.");
+    return;
+  }
+
+  const MuxVideo = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
+  const response = await MuxVideo.LiveStreams.create({
+    playback_policy: 'public',
+    new_asset_settings: { playback_policy: 'public' },
+  });
+
+  // Save the Mux API response in the PostgreSQL database
+  try {
+    const playbackId = response.playback_ids[0].id;
+    const streamKey = response.stream_key;
+    const liveStream = await Video.create({
+      title: "STREAM",
+      url: `https://stream.mux.com/${playbackId}.m3u8`,
+      user_Id,
+      description: DESCRIPTION_FROM_REQUEST,
+      duration: DURATION_FROM_REQUEST, 
+      api_key: API_KEY_FROM_REQUEST, 
+      is_live: true,
+      is_saved: true,
+      mux_stream_key: streamKey, 
+      mux_playback_id: playbackId, 
+    });
+
+    return liveStream;
+  } catch (error) {
+    console.error('Error saving stream details to the database:', error);
+    return null;
+  }
+};
+
 
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -23,7 +62,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true }));
 app.use(express.json()); // Middleware for parsing JSON bodies from HTTP requests
-app.use(morgan())
+app.use(morgan());
 
 
 const SequelizeStore = SequelizeStoreInit(session.Store);
@@ -53,8 +92,6 @@ function verifytoken(req, res, next){
     next();
   });
 }
-
-
 const upload= multer({storage});
 // Session middleware
 app.use(
@@ -134,28 +171,44 @@ app.post('/videos', validate_Token,async (req, res) => {
 
 app.post('/broadcast',validate_Token, async (req, res)=> {
   try {
-    const {url, user_Id, description, duration, api_key} = req.body;
-  
-
-    if (!url|| !description|| !duration || !user_Id||!api_key)
+    const { description } = req.body;
+    const user_Id = req.userId; // Use req.userId here instead of req.userId
+    console.log("User ID from middleware:", user_Id);
+    if ( !description)
     {
      return res.status(400).json({error: 'all fields are required'})
     }
+    console.log('fetching user');
     const user = await User.findByPk(user_Id);
+    console.log('fetching user done');
     if (!user){
       return res.status(404).json({error: 'user not found'});
     }
+    const { Video: MuxVideo }  = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
+    console.log('creat mux video');
+    console.log(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
+const response = await MuxVideo.LiveStreams.create({
+    playback_policy: 'public',
+    new_asset_settings: { playback_policy: 'public' }
+});
+console.log('creat mux video done');
+const playbackId = response.playback_ids[0].id;
+const streamKey = response.stream_key;
+const time = response.max_continuous_duration;
+console.log('hello about to create video');
     const video = await Video.create({
       title: "STREAM",
-      url,
-      user_Id,
+       url: `https://stream.mux.com/${playbackId}.m3u8`,
+      user_Id: user_Id,
       description,
-      duration,
-      api_key,
+      duration: time,
+      api_key:playbackId,
       is_live: true,
       is_saved: true,
-
+      mux_stream_key: streamKey, 
+      mux_playback_id: playbackId, 
     });
+    console.log(video);
     res.status(201).json(video);
   } catch(error){
   console.error(error);
@@ -207,3 +260,4 @@ sequelize.sync({ alter: true })
   .catch(error => {
     console.error('Unable to connect to the database:', error);
   });
+

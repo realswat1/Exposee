@@ -24,6 +24,14 @@ export const Video = sequelize.define('Video', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
+  mux_stream_key:{
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mux_playback_id:{
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   is_saved:{
     type: DataTypes.BOOLEAN,
     allowNull: false
