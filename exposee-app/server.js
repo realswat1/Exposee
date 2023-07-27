@@ -37,7 +37,8 @@ const createLiveStream = async () => {
     const liveStream = await Video.create({
       title: "STREAM",
       url: `https://stream.mux.com/${playbackId}.m3u8`,
-      user_Id,
+
+      user_Id:user_Id,
       description: DESCRIPTION_FROM_REQUEST,
       duration: DURATION_FROM_REQUEST, 
       api_key: API_KEY_FROM_REQUEST, 
@@ -172,30 +173,35 @@ app.post('/videos', validate_Token,async (req, res) => {
 app.post('/broadcast',validate_Token, async (req, res)=> {
   try {
     const { description } = req.body;
-    const user_Id = req.userId; // Use req.userId here instead of req.userId
-    console.log("User ID from middleware:", user_Id);
+
+    const user_Id = req.userId; 
     if ( !description)
     {
      return res.status(400).json({error: 'all fields are required'})
     }
-    console.log('fetching user');
+
+    
     const user = await User.findByPk(user_Id);
-    console.log('fetching user done');
+    //console.log('fetching user done');
+
     if (!user){
       return res.status(404).json({error: 'user not found'});
     }
     const { Video: MuxVideo }  = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
-    console.log('creat mux video');
+
+    //console.log('creat mux video');
+
     console.log(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET);
 const response = await MuxVideo.LiveStreams.create({
     playback_policy: 'public',
     new_asset_settings: { playback_policy: 'public' }
 });
-console.log('creat mux video done');
+//console.log('creat mux video done');
 const playbackId = response.playback_ids[0].id;
 const streamKey = response.stream_key;
 const time = response.max_continuous_duration;
-console.log('hello about to create video');
+//console.log('hello about to create video');
+
     const video = await Video.create({
       title: "STREAM",
        url: `https://stream.mux.com/${playbackId}.m3u8`,
@@ -208,7 +214,9 @@ console.log('hello about to create video');
       mux_stream_key: streamKey, 
       mux_playback_id: playbackId, 
     });
-    console.log(video);
+
+    // console.log(video);
+
     res.status(201).json(video);
   } catch(error){
   console.error(error);
