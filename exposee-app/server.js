@@ -35,6 +35,7 @@ const createLiveStream = async () => {
     const liveStream = await Video.create({
       title: 'STREAM',
       url: `https://stream.mux.com/${playbackId}.m3u8`,
+
       user_Id,
       description: DESCRIPTION_FROM_REQUEST,
       duration: DURATION_FROM_REQUEST,
