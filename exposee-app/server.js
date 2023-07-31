@@ -272,7 +272,9 @@ async function handleLiveStreamIdle (data) {
 }
 async function handleLiveStreamRecording (data) {
   const { playback_id } = data
-  console.log("its is :",playback_id);
+
+  console.log('its is :', playback_id)
+
   try {
     // Find the corresponding video in the database based on the active_asset_id
     const video = await Video.findOne({ where: { mux_playback_id: playback_id } })
