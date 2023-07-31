@@ -30,10 +30,15 @@ const Login = () => {
         const data = await response.json();
         const loggedInUser = data.user;
         const access_token = data.access_token;
-
         // Update the user context
         updateUser(loggedInUser);
         localStorage.setItem('access_token', access_token);
+        const userWithToken = {
+          ...loggedInUser,
+          access_token: access_token,
+        };
+        updateUser(userWithToken);
+        console.log('hello', userWithToken )
         // Navigate to the home page after successful login
          navigate('/');
       } else {
