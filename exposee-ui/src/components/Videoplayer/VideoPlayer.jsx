@@ -1,13 +1,13 @@
 import React from "react";
 import MuxPlayer from "@mux/mux-player-react";
-import "./VideoPlayer.css"; 
+import "./VideoPlayer.css";
 
 const VideoPlayer = ({ playbackId }) => {
   return (
     <div className="video-container">
       <MuxPlayer
-        streamType="live" 
-        playbackId={playbackId} 
+        streamType="live"
+        playbackId={playbackId}
         metadata={{
           video_id: "video-id-54321",
           video_title: "Test video title",
@@ -19,7 +19,7 @@ const VideoPlayer = ({ playbackId }) => {
           borderRadius: "10px",
           overflow: "hidden",
         }}
-        controls={true} 
+        controls={true}
       />
     </div>
   );

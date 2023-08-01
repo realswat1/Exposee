@@ -1,18 +1,18 @@
-import './App.css';
-import { useState, useEffect } from 'react';
-import { UserContext } from './UserContext';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import "./App.css";
+import { useState, useEffect } from "react";
+import { UserContext } from "./UserContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Main from '../src/components/Mainpage/Main'
-import Login from '../src/components/Login/Login';
-import Registration from '../src/components/Registration/Registration';
-import Profilepage from './components/Profilepage/Profile';
+import Main from "../src/components/Mainpage/Main";
+import Login from "../src/components/Login/Login";
+import Registration from "../src/components/Registration/Registration";
+import Profilepage from "./components/Profilepage/Profile";
 
 function App() {
   const [user, setUser] = useState(() => {
     // Retrieve the user data from storage or set it to null if not found
-    const storedUser = localStorage.getItem('user');
-    return storedUser ===null? JSON.parse(storedUser) : null;
+    const storedUser = localStorage.getItem("user");
+    return storedUser === null ? JSON.parse(storedUser) : null;
   });
 
   const updateUser = (newUser) => {
@@ -21,7 +21,7 @@ function App() {
 
   useEffect(() => {
     // Save the user data to storage whenever the user state changes
-    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
 
   return (

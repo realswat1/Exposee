@@ -1,14 +1,12 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import '../Registration/Registration.css'
-import { UserContext } from '../../UserContext';
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../Registration/Registration.css";
+import { UserContext } from "../../UserContext";
 
 const Registration = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -20,46 +18,47 @@ const Registration = () => {
       // Make the signup API request
 
       const response = await fetch(`http://localhost:3000/user`, {
-
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
 
-        body: JSON.stringify({ username: username, email: email, password: password}),
-        credentials: 'include'
-        
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          password: password,
+        }),
+        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
         const loggedInUser = data.user;
 
-        console.log('Signup successful');
+        console.log("Signup successful");
 
         // Reset form fields
-        setUsername('');
-        setEmail('');
-        setPassword('');
+        setUsername("");
+        setEmail("");
+        setPassword("");
 
         // Update the user context
 
         updateUser(loggedInUser);
 
         // Navigate to the home page after successful login
-        navigate('/');
+        navigate("/");
       } else {
         // Handle signup failure case
-        alert('Signup failed');
+        alert("Signup failed");
       }
     } catch (error) {
       // Handle any network or API request errors
-      alert('Signup failed: ' + error);
+      alert("Signup failed: " + error);
     }
   };
 
   return (
-    
     <div className="registration-form-container">
       <form className="registration-form" onSubmit={handleSubmit}>
         <h2>Sign Up</h2>
@@ -73,7 +72,7 @@ const Registration = () => {
             required
           />
         </div>
-         <div className="form-group"> 
+        <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -99,7 +98,7 @@ const Registration = () => {
         </p>
       </form>
     </div>
-  )
+  );
 };
 
 export default Registration;
