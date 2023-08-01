@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { UserContext } from "../../UserContext.js";
+import { UserContext } from "../../UserContext.jsx";
 import { Link } from "react-router-dom";
 import VideoPlayer from "../Videoplayer/Videoplayer.jsx";
 import "./main.css"
