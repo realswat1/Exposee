@@ -9,49 +9,49 @@ import { sequelize } from './database.js'
 import { User, Video } from './models/index.js'
 import userRoutes from './Routes/users.js'
 import SequelizeStoreInit from 'connect-session-sequelize'
-import { DATE } from 'sequelize'
-import validate_Token from './authentoken.js'
+// import { DATE } from 'sequelize'
+import validateToken from './authentoken.js'
 
 import dotenv from 'dotenv'
 import Mux from '@mux/mux-node'
 
 const app = express()
 dotenv.config()
-const createLiveStream = async () => {
-  if (!process.env.MUX_TOKEN_ID || !process.env.MUX_TOKEN_SECRET) {
-    console.error("It looks like you haven't set up your Mux token in the .env file yet.")
-    return
-  }
+// const createLiveStream = async () => {
+//   if (!process.env.MUX_TOKEN_ID || !process.env.MUX_TOKEN_SECRET) {
+//     console.error("It looks like you haven't set up your Mux token in the .env file yet.")
+//     return
+//   }
 
-  const MuxVideo = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET)
-  const response = await MuxVideo.LiveStreams.create({
-    playback_policy: 'public',
-    new_asset_settings: { playback_policy: 'public' }
-  })
-  // Save the Mux API response in the PostgreSQL database
-  try {
-    const playbackId = response.playback_ids[0].id
-    const streamKey = response.stream_key
-    const liveStream = await Video.create({
-      title: 'STREAM',
-      url: `https://stream.mux.com/${playbackId}.m3u8`,
+//   const MuxVideo = new Mux(process.env.MUX_TOKEN_ID, process.env.MUX_TOKEN_SECRET)
+//   const response = await MuxVideo.LiveStreams.create({
+//     playback_policy: 'public',
+//     new_asset_settings: { playback_policy: 'public' }
+//   })
+//   // Save the Mux API response in the PostgreSQL database
+//   try {
+//     const playbackId = response.playback_ids[0].id
+//     const streamKey = response.stream_key
+//     const liveStream = await Video.create({
+//       title: 'STREAM',
+//       url: `https://stream.mux.com/${playbackId}.m3u8`,
 
-      user_Id,
-      description: DESCRIPTION_FROM_REQUEST,
-      duration: DURATION_FROM_REQUEST,
-      api_key: API_KEY_FROM_REQUEST,
-      is_live: false,
-      is_saved: false,
-      mux_stream_key: streamKey,
-      mux_playback_id: playbackId
-    })
+//       userid,
+//       description: DESCRIPTIONFROMREQUEST,
+//       duration: DURATIONFROMREQUEST,
+//       api_key: APIKEYFROMREQUEST,
+//       is_live: false,
+//       is_saved: false,
+//       mux_stream_key: streamKey,
+//       mux_playback_id: playbackId
+//     })
 
-    return liveStream
-  } catch (error) {
-    console.error('Error saving stream details to the database:', error)
-    return null
-  }
-}
+//     return liveStream
+//   } catch (error) {
+//     console.error('Error saving stream details to the database:', error)
+//     return null
+//   }
+// }
 
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -75,19 +75,19 @@ const storage = multer.diskStorage({
   }
 })
 
-function verifytoken (req, res, next) {
-  const token = req.header('Authorization')
-  if (!token) {
-    return res.status(401).json({ error: 'Acess denied. No token provided' })
-  }
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ error: 'invalid token' })
-    }
-    req.userId = decoded.userId
-    next()
-  })
-}
+// function verifytoken (req, res, next) {
+//   const token = req.header('Authorization')
+//   if (!token) {
+//     return res.status(401).json({ error: 'Acess denied. No token provided' })
+//   }
+//   jwt.verify(token, secretKey, (err, decoded) => {
+//     if (err) {
+//       return res.status(401).json({ error: 'invalid token' })
+//     }
+//     req.userId = decoded.userId
+//     next()
+//   })
+// }
 const upload = multer({ storage })
 // Session middleware
 app.use(
@@ -110,8 +110,8 @@ app.use(userRoutes)
 
 app.post('/upload-profile-pic/:id', upload.single('profilePicture'), async (req, res) => {
   try {
-    const user_Id = req.params.id
-    const user = await User.findOne({ where: { id: user_Id } })
+    const userId = req.params.id
+    const user = await User.findOne({ where: { id: userId } })
 
     if (user && user.profile_Picture) {
       return res.status(400).json({ message: 'user already has a profile picture' })
@@ -121,16 +121,16 @@ app.post('/upload-profile-pic/:id', upload.single('profilePicture'), async (req,
     if (!filePath) {
       return res.status(400).json({ message: 'no file uploaded' })
     }
-    await User.update({ profile_Picture: filePath }, { where: { id: user_Id } })
+    await User.update({ profile_Picture: filePath }, { where: { id: userId } })
     res.status(200).json({ message: 'Profile picture upload successfully' })
   } catch (error) {
     res.status(500).json({ message: 'Error uploading profile picture' })
   }
 })
-app.get('/profile/:id', validate_Token, async (req, res) => {
-  const user_Id = req.params.id
+app.get('/profile/:id', validateToken, async (req, res) => {
+  const userId = req.params.id
   try {
-    const user = await User.findByPk(user_Id)
+    const user = await User.findByPk(userId)
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
@@ -148,7 +148,7 @@ app.get('/videos', async (req, res) => {
   }
 }
 )
-app.post('/videos', validate_Token, async (req, res) => {
+app.post('/videos', validateToken, async (req, res) => {
   try {
     const { title, url } = req.body
     const video = await Video.create({ title, url })
@@ -158,14 +158,14 @@ app.post('/videos', validate_Token, async (req, res) => {
   }
 })
 
-app.post('/broadcast', validate_Token, async (req, res) => {
+app.post('/broadcast', validateToken, async (req, res) => {
   try {
     const { description } = req.body
-    const user_Id = req.userId
+    const userId = req.userId
     if (!description) {
       return res.status(400).json({ error: 'all fields are required' })
     }
-    const user = await User.findByPk(user_Id)
+    const user = await User.findByPk(userId)
     if (!user) {
       return res.status(404).json({ error: 'user not found' })
     }
@@ -180,7 +180,7 @@ app.post('/broadcast', validate_Token, async (req, res) => {
     const video = await Video.create({
       title: 'STREAM',
       url: `https://stream.mux.com/${playbackId}.m3u8`,
-      user_Id,
+      userId,
       description,
       duration: time,
       api_key: playbackId,
@@ -196,10 +196,10 @@ app.post('/broadcast', validate_Token, async (req, res) => {
   }
 })
 
-app.get('/videos/:id', validate_Token, async (req, res) => {
+app.get('/videos/:id', validateToken, async (req, res) => {
   try {
-    const video_Id = req.params.id
-    const video = await Video.findByPk(video_Id)
+    const videoId = req.params.id
+    const video = await Video.findByPk(videoId)
     if (video) {
       res.json(video)
     } else {
@@ -211,11 +211,11 @@ app.get('/videos/:id', validate_Token, async (req, res) => {
   }
 })
 async function handleLiveStreamConnected (data) {
-  const { stream_key } = data
+  const { streamkey } = data
 
   try {
     // Find the corresponding video in the database based on the stream ID
-    const video = await Video.findOne({ where: { mux_stream_key: stream_key } })
+    const video = await Video.findOne({ where: { mux_stream_key: streamkey } })
     if (video) {
       // Update the is_live field to true
       await video.update({ is_live: true })
@@ -227,11 +227,11 @@ async function handleLiveStreamConnected (data) {
 
 // Function to handle when the live stream is disconnected
 async function handleLiveStreamDisconnected (data) {
-  const { stream_key } = data
+  const { streamkey } = data
 
   try {
     // Find the corresponding video in the database based on the stream ID
-    const video = await Video.findOne({ where: { mux_stream_key: stream_key } })
+    const video = await Video.findOne({ where: { mux_stream_key: streamkey } })
     if (video) {
       // Update the is_live field to false
       await video.update({ is_live: false })
@@ -243,11 +243,11 @@ async function handleLiveStreamDisconnected (data) {
 
 // Function to handle when the live stream becomes active
 async function handleLiveStreamActive (data) {
-  const { playback_id } = data
+  const { playbackid } = data
 
   try {
     // Find the corresponding video in the database based on the active_asset_id
-    const video = await Video.findOne({ where: { mux_playback_id: playback_id } })
+    const video = await Video.findOne({ where: { mux_playback_id: playbackid } })
     if (video) {
       // Update the is_live field to true
       await video.update({ is_live: true })
@@ -257,11 +257,11 @@ async function handleLiveStreamActive (data) {
   }
 }
 async function handleLiveStreamIdle (data) {
-  const { playback_id } = data
+  const { playbackid } = data
 
   try {
     // Find the corresponding video in the database based on the active_asset_id
-    const video = await Video.findOne({ where: { mux_playback_id: playback_id } })
+    const video = await Video.findOne({ where: { mux_playback_id: playbackid } })
     if (video) {
       // Update the is_live field to true
       await video.update({ is_live: false })
@@ -271,13 +271,13 @@ async function handleLiveStreamIdle (data) {
   }
 }
 async function handleLiveStreamRecording (data) {
-  const { playback_id } = data
+  const { playbackid } = data
 
-  console.log('its is :', playback_id)
+  console.log('its is :', playbackid)
 
   try {
     // Find the corresponding video in the database based on the active_asset_id
-    const video = await Video.findOne({ where: { mux_playback_id: playback_id } })
+    const video = await Video.findOne({ where: { mux_playback_id: playbackid } })
     if (video) {
       // Update the is_saved field to true
       await video.update({ is_saved: true })
@@ -289,11 +289,11 @@ async function handleLiveStreamRecording (data) {
 
 // Function to handle when the asset's live stream is completed
 async function handleAssetLiveStreamCompleted (data) {
-  const { playback_id } = data
+  const { playbackid } = data
 
   try {
     // Find the corresponding video in the database based on the active_asset_id
-    const video = await Video.findOne({ where: { mux_playback_id: playback_id } })
+    const video = await Video.findOne({ where: { mux_playback_id: playbackid } })
     if (video) {
       // Update the is_live field to false
       await video.update({ is_live: false })
@@ -331,11 +331,11 @@ app.post('/mux-webhook', (req, res) => {
   res.status(200).send('Thanks, Mux!')
 })
 
-app.post('/videos/:id', validate_Token, async (req, res) => {
+app.post('/videos/:id', validateToken, async (req, res) => {
   try {
-    const video_Id = req.params.id
+    const videoId = req.params.id
     const { title, url } = req.body
-    const video = await Video.findByPk(video_Id)
+    const video = await Video.findByPk(videoId)
     if (video) {
       video.title = title
       video.url = url

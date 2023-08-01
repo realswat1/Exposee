@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../database.js';
+import { DataTypes } from 'sequelize'
+import { sequelize } from '../database.js'
 
 export const User = sequelize.define('User', {
   username: {
@@ -16,8 +16,7 @@ export const User = sequelize.define('User', {
     allowNull: false
   },
 
-
-  profile_Picture:{
-    type: DataTypes.STRING,
+  profile_Picture: {
+    type: DataTypes.STRING
   }
-});
+})

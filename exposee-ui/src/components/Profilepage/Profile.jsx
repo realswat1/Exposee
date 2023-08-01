@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
-import { UserContext}  from '../../UserContext';
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../UserContext";
+import { Link } from "react-router-dom";
 //import axios from "axios";
 
 const ProfilePage = () => {
   const { user, setUser } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/profile/${user.id}`);
+        const response = await fetch(
+          `http://localhost:3000/profile/${user.id}`
+        );
         if (response.ok) {
           const data = await response.json();
           setUser(data);
@@ -19,7 +21,7 @@ const ProfilePage = () => {
         }
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        console.error("Error fetching user profile:", error);
         setIsLoading(false);
       }
     };
@@ -29,27 +31,27 @@ const ProfilePage = () => {
 
   const handleBroadcast = async () => {
     try {
-      const response = await fetch('http://localhost:3000/broadcast', {
+      const response = await fetch("http://localhost:3000/broadcast", {
         method: "POST",
         headers: {
-            'Content-Type': 'application/json',
-            access_token: user.access_token
+          "Content-Type": "application/json",
+          access_token: user.access_token,
         },
         body: JSON.stringify({
           description: "STREAM",
         }),
       });
-console.log('helloe',response);
+
       if (response.ok) {
         const data = await response.json();
-        alert(`Broadcast started successfully!, use the pop up stream key to set up stream in OBS . STREAMKEY: ${data.mux_stream_key
-        }`);
-        console.log(data);
+        alert(
+          `Broadcast started successfully!, use the pop up stream key to set up stream in OBS . STREAMKEY: ${data.mux_stream_key}`
+        );
       } else {
         console.log("Failed to start the live stream");
       }
     } catch (error) {
-      console.error('Error going live:', error);
+      console.error("Error going live:", error);
     }
   };
 

@@ -23,7 +23,7 @@ const Registration = () => {
 
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
 
         body: JSON.stringify({ username: username, email: email, password: password}),
@@ -35,7 +35,7 @@ const Registration = () => {
         const data = await response.json();
         const loggedInUser = data.user;
 
-        console.log('Signup successful');
+        console.log("Signup successful");
 
         // Reset form fields
         setUsername('');
@@ -59,7 +59,6 @@ const Registration = () => {
   };
 
   return (
-    
     <div className="registration-form-container">
       <form className="registration-form" onSubmit={handleSubmit}>
         <h2>Sign Up</h2>
@@ -99,7 +98,7 @@ const Registration = () => {
         </p>
       </form>
     </div>
-  )
+  );
 };
 
 export default Registration;
