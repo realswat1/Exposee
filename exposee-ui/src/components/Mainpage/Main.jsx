@@ -2,7 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../UserContext.jsx";
 import { Link } from "react-router-dom";
 import VideoPlayer from "../Videoplayer/Videoplayer.jsx";
+
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx"; // Make sure to import the LoadingSpinner component
+
 import "./main.css";
 
 function Main() {
