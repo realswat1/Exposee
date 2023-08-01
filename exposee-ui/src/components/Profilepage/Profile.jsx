@@ -26,7 +26,6 @@ const ProfilePage = () => {
 
     fetchUserProfile();
   }, [user.id, setUser]);
-console.log(user.access_token);
 
   const handleBroadcast = async () => {
     try {

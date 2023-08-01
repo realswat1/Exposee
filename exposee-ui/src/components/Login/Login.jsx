@@ -38,7 +38,6 @@ const Login = () => {
           access_token: access_token,
         };
         updateUser(userWithToken);
-        console.log('hello', userWithToken )
         // Navigate to the home page after successful login
          navigate('/');
       } else {
