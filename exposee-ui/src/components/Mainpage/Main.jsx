@@ -1,13 +1,15 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../UserContext.jsx";
 import { Link } from "react-router-dom";
 import VideoPlayer from "../Videoplayer/Videoplayer.jsx";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx"; // Make sure to import the LoadingSpinner component
 import "./main.css";
 
 function Main() {
   const { user, updateUser } = useContext(UserContext);
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true); // Add a loading state
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -21,6 +23,8 @@ function Main() {
         }
       } catch (error) {
         console.log("Error fetching videos", error);
+      } finally {
+        setLoading(false); // Set loading to false after videos are fetched
       }
     };
 
@@ -56,23 +60,29 @@ function Main() {
           )}
         </div>
       </header>
-      <div
-        className="video-list"
-        onMouseUp={handleSwipeUp}
-        style={{ cursor: "grab", touchAction: "pan-y" }}
-      >
-        {videos.map((video, index) => (
-          <div
-            className={`video-container ${
-              index === currentIndex ? "active" : ""
-            }`}
-            key={video.id}
-          >
-            <VideoPlayer playbackId={video.mux_playback_id} />
-            <p>{video.title}</p>
-          </div>
-        ))}
-      </div>
+
+      {/* Conditionally render the LoadingSpinner while loading is true */}
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div
+          className="video-grid"
+          onMouseUp={handleSwipeUp}
+          style={{ cursor: "grab", touchAction: "pan-y" }}
+        >
+          {videos.map((video, index) => (
+            <div
+              className={`video-container ${
+                index === currentIndex ? "active" : ""
+              }`}
+              key={video.id}
+            >
+              <VideoPlayer playbackId={video.mux_playback_id} />
+              <p>{video.title}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
