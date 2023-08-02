@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { User, Video } from "./models/index.js";
+import { User, Video, Gift, Wallet } from "./models/index.js";
 import { sequelize } from "./database.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,6 +12,12 @@ const userData = JSON.parse(
 );
 const videoData = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "./seeders/video.json"), "utf8")
+);
+const giftsData = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "./seeders/gifts.json"), "utf8")
+);
+const walletData = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "./seeders/wallet.json"), "utf8")
 );
 
 const seedDatabase = async () => {
@@ -27,6 +33,11 @@ const seedDatabase = async () => {
 
     await Video.bulkCreate(videoData);
     console.log("Post data has been seeded!");
+    await Gift.bulkCreate(giftsData);
+    console.log("Gifts data has been seeded!");
+    await Wallet.bulkCreate(walletData);
+    console.log("Wallet data has been seeded!");
+
   } catch (error) {
     console.error("Error seeding data:", error);
   } finally {
