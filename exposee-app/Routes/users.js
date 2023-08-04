@@ -29,7 +29,7 @@ router.get("/user", validate_Token, async (req, res) => {
   console.log(users);
   res.status(200).json(users);
 });
-router.get('/wallet/:user_id', validate_Token, async (req, res) => {
+router.get('/:user_id/wallet', validate_Token, async (req, res) => {
   try {
     const user_id = req.userId;
     // const user_id = req.params.user_id;
@@ -46,11 +46,14 @@ router.get('/wallet/:user_id', validate_Token, async (req, res) => {
 });
 router.post('/gift', validate_Token, async (req, res) => {
   try {
-    const { sender_id, receiver_id, amount , video_id } = req.body;
+    const sender_id = req.userId;
+    const { receiver_id, amount, video_id } = req.body;
 
     // Check if both sender and receiver exist in the database
-    const senderWallet = await Wallet.findOne({ where: { user_id: sender_id } });
+    const senderWallet = await Wallet.findOne({ where: { user_id:sender_id } });
+    console.log('hey there',senderWallet);
     const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id } });
+    console.log('hey there 2', receiverWallet);
 
     if (!senderWallet || !receiverWallet) {
       return res.status(404).json({ error: 'Sender or receiver not found' });
