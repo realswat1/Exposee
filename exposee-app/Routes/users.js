@@ -4,6 +4,7 @@ import { User } from "../models/users.js";
 import { Gift } from "../models/gifts.js";
 import { Wallet } from "../models/wallet.js";
 import { Op } from "sequelize";
+import { getCurrentVideoId } from "../videoget.js";
 import pkg from "jsonwebtoken";
 const { sign } = pkg;
 import validate_Token from "../authentoken.js";
@@ -50,10 +51,8 @@ router.post('/gift', validate_Token, async (req, res) => {
     const { receiver_id, amount, video_id } = req.body;
 
     // Check if both sender and receiver exist in the database
-    const senderWallet = await Wallet.findOne({ where: { user_id:sender_id } });
-    console.log('hey there',senderWallet);
+    const senderWallet = await Wallet.findOne({ where: { user_id: sender_id } });
     const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id } });
-    console.log('hey there 2', receiverWallet);
 
     if (!senderWallet || !receiverWallet) {
       return res.status(404).json({ error: 'Sender or receiver not found' });
@@ -84,6 +83,16 @@ router.post('/gift', validate_Token, async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+router.get("/current_video", validate_Token, async (req, res) => {
+  try {
+    const user_id = req.userId;
+    const current_video_id = await getCurrentVideoId(user_id);
+    res.json({ current_video_id });
+  } catch (error) {
+    console.error("Error fetching the current video:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 router.get('/gifts/:user_id', validate_Token, async (req, res) => {

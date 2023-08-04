@@ -3,7 +3,7 @@ import { UserContext } from "../../UserContext.jsx";
 import { Link } from "react-router-dom";
 import VideoPlayer from "../Videoplayer/Videoplayer.jsx";
 
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx"; // Make sure to import the LoadingSpinner component
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx";
 
 import "./main.css";
 
@@ -11,7 +11,8 @@ function Main() {
   const { user, updateUser } = useContext(UserContext);
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
+  const [currentVideoId, setCurrentVideoId] = useState(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -26,7 +27,7 @@ function Main() {
       } catch (error) {
         console.log("Error fetching videos", error);
       } finally {
-        setLoading(false); // Set loading to false after videos are fetched
+        setLoading(false);
       }
     };
 
@@ -42,6 +43,29 @@ function Main() {
       }
     });
   };
+  const fetchCurrentVideoId = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/current_video", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentVideoId(data.current_video_id);
+      } else {
+        console.log("Failed to fetch current video ID");
+      }
+    } catch (error) {
+      console.log("Error fetching current video ID", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchCurrentVideoId();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     updateUser(null);
@@ -62,8 +86,6 @@ function Main() {
           )}
         </div>
       </header>
-
-      {/* Conditionally render the LoadingSpinner while loading is true */}
       {loading ? (
         <LoadingSpinner />
       ) : (
@@ -74,12 +96,15 @@ function Main() {
         >
           {videos.map((video, index) => (
             <div
-              className={`video-container ${
-                index === currentIndex ? "active" : ""
-              }`}
+              className={`video-container ${index === currentIndex ? "active" : ""
+                }`}
               key={video.id}
             >
-              <VideoPlayer playbackId={video.mux_playback_id} />
+              <VideoPlayer
+              playbackId={video.mux_playback_id}
+              current_video_id={current_video_id}
+                onPlay={() => handleVideoPlay(video.id)}
+              />
               <p>{video.title}</p>
             </div>
           ))}
