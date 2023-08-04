@@ -9,13 +9,5 @@ export const Wallet = sequelize.define("Wallet", {
     amount: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },
-    deductions: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    addition: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
     }
 });

@@ -1,18 +1,105 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { User } from "../models/users.js";
+import { Gift } from "../models/gifts.js";
+import { Wallet } from "../models/wallet.js";
 import { Op } from "sequelize";
 import pkg from "jsonwebtoken";
 const { sign } = pkg;
 import validate_Token from "../authentoken.js";
+import dotenv from "dotenv";
 
 const router = express.Router();
-
+dotenv.config();
+function verifytoken(req, res, next) {
+  const token = req.header("Authorization");
+  if (!token) {
+    return res.status(401).json({ error: "Acess denied. No token provided" });
+  }
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: "invalid token" });
+    }
+    req.userId = decoded.userId;
+    next();
+  });
+}
 router.get("/user", validate_Token, async (req, res) => {
   const users = await User.findAll();
   console.log(users);
   res.status(200).json(users);
 });
+router.get('/:user_id/wallet', validate_Token, async (req, res) => {
+  try {
+    const user_id = req.userId;
+    // const user_id = req.params.user_id;
+    const wallet = await Wallet.findOne({ where: { user_id } });
+    if (!wallet) {
+      return res.status(404).json({ error: 'Wallet not found' });
+    }
+
+    return res.json({ balance: wallet.amount });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+router.post('/gift', validate_Token, async (req, res) => {
+  try {
+    const sender_id = req.userId;
+    const { receiver_id, amount, video_id } = req.body;
+
+    // Check if both sender and receiver exist in the database
+    const senderWallet = await Wallet.findOne({ where: { user_id:sender_id } });
+    console.log('hey there',senderWallet);
+    const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id } });
+    console.log('hey there 2', receiverWallet);
+
+    if (!senderWallet || !receiverWallet) {
+      return res.status(404).json({ error: 'Sender or receiver not found' });
+    }
+
+    // Check if the sender has sufficient balance
+    if (senderWallet.amount < amount) {
+      return res.status(400).json({ error: 'Insufficient balance' });
+    }
+
+    // Deduct the amount from the sender's wallet
+    senderWallet.amount -= amount;
+    await senderWallet.save();
+
+    // Add the amount to the receiver's wallet
+    receiverWallet.amount += amount;
+    await receiverWallet.save();
+
+    // Create a gift record in the database
+    await Gift.create({
+      sender_id,
+      receiver_id,
+      amount,
+      video_id,
+    });
+
+    return res.json({ message: 'Gift sent successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+router.get('/gifts/:user_id', validate_Token, async (req, res) => {
+  try {
+    const userId = req.params.user_id;
+    const gifts = await Gift.findAll({
+      where: { sender_id: userId },
+    });
+
+    return res.json(gifts);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 // Route for user registration
 router.post("/user", async (req, res) => {
@@ -50,6 +137,26 @@ router.post("/user", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
+  }
+});
+router.post('/wallet', validate_Token, async (req, res) => {
+  try {
+    const amount = 10;
+    const user_id = req.userId;
+
+    // Check if the user already has a wallet
+    const existingWallet = await Wallet.findOne({ where: { user_id } });
+    if (existingWallet) {
+      return res.status(400).json({ error: 'User already has a wallet' });
+    }
+
+    // Create a new wallet for the user
+    const wallet = await Wallet.create({ user_id, amount: 10 });
+
+    return res.status(201).json(wallet);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
