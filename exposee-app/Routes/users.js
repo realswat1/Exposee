@@ -4,8 +4,6 @@ import { User } from "../models/users.js";
 import { Gift } from "../models/gifts.js";
 import { Wallet } from "../models/wallet.js";
 import { Op } from "sequelize";
-// import { sequelize } from "../database.js";
-// import { Gift, Wallet } from "../models/index.js";
 import pkg from "jsonwebtoken";
 const { sign } = pkg;
 import validate_Token from "../authentoken.js";
@@ -29,7 +27,6 @@ function verifytoken(req, res, next) {
 }
 router.get("/user", validate_Token, async (req, res) => {
   const users = await User.findAll();
-  console.log(users);
   res.status(200).json(users);
 });
 router.get('/:user_id/wallet', validate_Token, async (req, res) => {
@@ -59,13 +56,11 @@ router.post("/gift", validate_Token, async (req, res) => {
     const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id }, transaction: t });
 
     if (!senderWallet || !receiverWallet) {
-      await t.rollback();
       return res.status(404).json({ error: "Sender or receiver not found" });
     }
 
     // Check if the sender has sufficient balance
     if (senderWallet.amount < amount) {
-      await t.rollback();
       return res.status(400).json({ error: "Insufficient balance" });
     }
 
