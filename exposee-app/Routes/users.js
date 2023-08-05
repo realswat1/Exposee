@@ -4,10 +4,13 @@ import { User } from "../models/users.js";
 import { Gift } from "../models/gifts.js";
 import { Wallet } from "../models/wallet.js";
 import { Op } from "sequelize";
+// import { sequelize } from "../database.js";
+// import { Gift, Wallet } from "../models/index.js";
 import pkg from "jsonwebtoken";
 const { sign } = pkg;
 import validate_Token from "../authentoken.js";
 import dotenv from "dotenv";
+import { sequelize } from "../database.js";
 
 const router = express.Router();
 dotenv.config();
@@ -44,52 +47,51 @@ router.get('/:user_id/wallet', validate_Token, async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
-router.post('/gift', validate_Token, async (req, res) => {
+router.post("/gift", validate_Token, async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const sender_id = req.userId;
     const { receiver_id, amount, video_id } = req.body;
 
     // Check if both sender and receiver exist in the database
-    const senderWallet = await Wallet.findOne({ where: { user_id: sender_id } });
-    const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id } });
+    const senderWallet = await Wallet.findOne({ where: { user_id: sender_id }, transaction: t });
+    const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id }, transaction: t });
 
     if (!senderWallet || !receiverWallet) {
-      return res.status(404).json({ error: 'Sender or receiver not found' });
+      await t.rollback();
+      return res.status(404).json({ error: "Sender or receiver not found" });
     }
 
     // Check if the sender has sufficient balance
     if (senderWallet.amount < amount) {
-      return res.status(400).json({ error: 'Insufficient balance' });
+      await t.rollback();
+      return res.status(400).json({ error: "Insufficient balance" });
     }
 
-    // Use Promise.all to update sender and receiver wallets in parallel
-    const updatedWallets = await Promise.all([
-      // Deduct the amount from the sender's wallet
-      senderWallet.update({ amount: senderWallet.amount - amount }),
-      // Add the amount to the receiver's wallet
-      receiverWallet.update({ amount: receiverWallet.amount + amount })
+    // Update sender and receiver wallets in a transaction
+    await Promise.all([
+      senderWallet.update({ amount: senderWallet.amount - amount }, { transaction: t }),
+      receiverWallet.update({ amount: receiverWallet.amount + amount }, { transaction: t })
     ]);
 
-    // Transaction successful, create a gift record in the database
+    // Create a gift record in the database
     await Gift.create({
       sender_id,
       receiver_id,
       amount,
       video_id,
-    });
+    }, { transaction: t });
 
-    return res.json({ message: 'Gift sent successfully' });
+    // If everything is successful, commit the transaction
+    await t.commit();
+
+    return res.json({ message: "Gift sent successfully" });
   } catch (error) {
     console.error(error);
-    // Rollback mechanism in case of any errors during the transaction
-    // If an error occurs, we'll revert the changes made to sender and receiver wallets
-    if (senderWallet && receiverWallet) {
-      await Promise.all([
-        senderWallet.update({ amount: senderWallet.amount + amount }),
-        receiverWallet.update({ amount: receiverWallet.amount - amount })
-      ]);
-    }
-    return res.status(500).json({ error: 'Internal server error' });
+    // If an error occurs during the transaction, rollback the changes
+    await t.rollback();
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 router.get('/gifts/:user_id', validate_Token, async (req, res) => {
