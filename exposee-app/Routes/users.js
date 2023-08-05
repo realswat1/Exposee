@@ -50,10 +50,8 @@ router.post('/gift', validate_Token, async (req, res) => {
     const { receiver_id, amount, video_id } = req.body;
 
     // Check if both sender and receiver exist in the database
-    const senderWallet = await Wallet.findOne({ where: { user_id:sender_id } });
-    console.log('hey there',senderWallet);
+    const senderWallet = await Wallet.findOne({ where: { user_id: sender_id } });
     const receiverWallet = await Wallet.findOne({ where: { user_id: receiver_id } });
-    console.log('hey there 2', receiverWallet);
 
     if (!senderWallet || !receiverWallet) {
       return res.status(404).json({ error: 'Sender or receiver not found' });
@@ -64,15 +62,15 @@ router.post('/gift', validate_Token, async (req, res) => {
       return res.status(400).json({ error: 'Insufficient balance' });
     }
 
-    // Deduct the amount from the sender's wallet
-    senderWallet.amount -= amount;
-    await senderWallet.save();
+    // Use Promise.all to update sender and receiver wallets in parallel
+    const updatedWallets = await Promise.all([
+      // Deduct the amount from the sender's wallet
+      senderWallet.update({ amount: senderWallet.amount - amount }),
+      // Add the amount to the receiver's wallet
+      receiverWallet.update({ amount: receiverWallet.amount + amount })
+    ]);
 
-    // Add the amount to the receiver's wallet
-    receiverWallet.amount += amount;
-    await receiverWallet.save();
-
-    // Create a gift record in the database
+    // Transaction successful, create a gift record in the database
     await Gift.create({
       sender_id,
       receiver_id,
@@ -83,6 +81,14 @@ router.post('/gift', validate_Token, async (req, res) => {
     return res.json({ message: 'Gift sent successfully' });
   } catch (error) {
     console.error(error);
+    // Rollback mechanism in case of any errors during the transaction
+    // If an error occurs, we'll revert the changes made to sender and receiver wallets
+    if (senderWallet && receiverWallet) {
+      await Promise.all([
+        senderWallet.update({ amount: senderWallet.amount + amount }),
+        receiverWallet.update({ amount: receiverWallet.amount - amount })
+      ]);
+    }
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
