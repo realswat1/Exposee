@@ -12,6 +12,8 @@ function Main() {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true); // Add a loading state
+  const [currentlyPlayingVideoId, setCurrentlyPlayingVideoId] = useState(null); // Added state for the currently playing video's video_id
+
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -42,6 +44,42 @@ function Main() {
       }
     });
   };
+  const handleGiftButton = async (receiver_id) => {
+    // Check if the user is logged in (make sure the access token is available)
+    if (!user || !user.access_token) {
+      alert("Please log in to send a gift.");
+      return;
+    }
+
+    try {
+      // Call the gift API endpoint with the required data
+      const response = await fetch("http://localhost:3000/gift", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          access_token: user.access_token,
+        },
+        body: JSON.stringify({
+          receiver_id,
+          amount: 1,
+          video_id: videos[currentIndex].id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send gift");
+      }
+
+      const data = await response.json();
+      console.log(data); // Handle the response as needed
+      alert("Gift sent successfully!");
+    } catch (error) {
+      console.error("Error sending gift:", error.message);
+      alert("Error sending gift. Please try again.");
+    }
+  };
+
+
 
   const handleLogout = () => {
     updateUser(null);
@@ -74,13 +112,18 @@ function Main() {
         >
           {videos.map((video, index) => (
             <div
-              className={`video-container ${
-                index === currentIndex ? "active" : ""
-              }`}
+              className={`video-container ${index === currentIndex ? "active" : ""}`}
               key={video.id}
             >
               <VideoPlayer playbackId={video.mux_playback_id} />
               <p>{video.title}</p>
+              {/* Add the gift button */}
+              <button
+                className="gift-button"
+                onClick={() => handleGiftButton(video.user_Id)}
+              >
+                Gift
+              </button>
             </div>
           ))}
         </div>
