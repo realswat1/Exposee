@@ -49,7 +49,9 @@ router.post("/gift", validate_Token, async (req, res) => {
 
   try {
     const sender_id = req.userId;
-    const { receiver_id, amount, video_id } = req.body;
+    const receiver_id = req.body.receiver_id;
+
+    const { amount, video_id } = req.body;
 
     // Check if both sender and receiver exist in the database
     const senderWallet = await Wallet.findOne({ where: { user_id: sender_id }, transaction: t });
