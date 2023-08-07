@@ -1,0 +1,91 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+
+  .profile-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .profile-info img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-right: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-details {
+    font-size: 18px;
+    color: #555;
+  }
+
+  .broadcast-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .broadcast-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .link-btn {
+    display: inline-block;
+    margin-top: 10px;
+    color: #007bff;
+    font-size: 16px;
+    text-decoration: none;
+    border-bottom: 2px solid #007bff;
+    transition: border-color 0.2s ease;
+  }
+
+  .link-btn:hover {
+    border-color: #0056b3;
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .loading-text {
+    font-size: 20px;
+    color: #555;
+  }
+
+  /* Responsive styles */
+  @media screen and (max-width: 600px) {
+    .profile-info {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .profile-info img {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+  }

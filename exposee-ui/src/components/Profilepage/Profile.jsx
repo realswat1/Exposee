@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../UserContext";
 import { Link, useNavigate } from "react-router-dom";
-//import axios from "axios";
+import "./profile.css";
 
 const ProfilePage = () => {
   const { user, setUser } = useContext(UserContext);
+  const [walletAmount, setWalletAmount] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -26,8 +28,30 @@ const ProfilePage = () => {
       }
     };
 
-    fetchUserProfile();
-  }, [user.id, setUser]);
+    const fetchUserWallet = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/${user.id}/wallet`, {
+          headers: {
+            Authorization: `Bearer ${user.access_token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log('heye', data);
+          setWalletAmount(data.balance);
+        } else {
+          console.log("Failed to fetch user wallet");
+        }
+      } catch (error) {
+        console.error("Error fetching user wallet:", error);
+      }
+    };
+
+    // Fetch user profile and user wallet data
+    Promise.all([fetchUserProfile(), fetchUserWallet()])
+      .then(() => setIsLoading(false))
+      .catch(() => setIsLoading(false));
+  }, [user.id, user.access_token, setUser]);
 
   const handleBroadcast = async () => {
     try {
@@ -35,17 +59,17 @@ const ProfilePage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          access_token: user.access_token,
+          Authorization: `Bearer ${user.access_token}`,
         },
         body: JSON.stringify({
           description: "STREAM",
         }),
       });
-      console.log("helloe", response);
+      console.log("hello", response);
       if (response.ok) {
         const data = await response.json();
         alert(
-          `Broadcast started successfully!, use the pop up stream key to set up stream in OBS . STREAMKEY: ${data.mux_stream_key}`
+          `Broadcast started successfully! Use the pop-up stream key to set up stream in OBS. STREAMKEY: ${data.mux_stream_key}`
         );
         console.log(data);
       } else {
@@ -56,23 +80,58 @@ const ProfilePage = () => {
     }
   };
 
+  const handleCreateWallet = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/wallet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.access_token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWalletAmount(data.amount);
+        alert("Wallet created successfully!");
+      } else {
+        console.log("Failed to create wallet");
+      }
+    } catch (error) {
+      console.error("Error creating wallet:", error);
+    }
+  };
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-text">Loading...</div>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="container">
       <h1>Profile Page</h1>
-      <div>
-        <h2>User Information</h2>
-        <div>
-          <img src={user.profilePicture} alt="Profile" />
+      <div className="profile-info">
+        <img src={user.profile_Picture} alt="Profile" />
+        <div className="profile-details">
+          <p>Username: {user.username}</p>
+          <p>Email: {user.email}</p>
+          {walletAmount !== null ? (
+            <p>Wallet Amount: {walletAmount}</p>
+          ) : (
+            <button className="create-wallet-btn" onClick={handleCreateWallet}>
+              Create Wallet
+            </button>
+          )}
         </div>
-        <p>Username: {user.username}</p>
-        <p>Email: {user.email}</p>
       </div>
-      <button onClick={handleBroadcast}>Broadcast</button>
-      <Link to="/">GET INSPIRED</Link>
+      <button className="broadcast-btn" onClick={handleBroadcast}>
+        Broadcast
+      </button>
+      <Link className="link-btn" to="/">
+        GET INSPIRED
+      </Link>
     </div>
   );
 };
