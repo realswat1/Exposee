@@ -116,11 +116,11 @@ sessionStore.sync();
 app.use(userRoutes);
 
 app.post(
-  "/upload-profile-pic/:id",
+  "/upload-profile-pic/:id",validate_Token,
   upload.single("profilePicture"),
   async (req, res) => {
     try {
-      const user_Id = req.params.id;
+      const user_Id = req.userId;
       const user = await User.findOne({ where: { id: user_Id } });
 
       if (user && user.profile_Picture) {
@@ -139,6 +139,7 @@ app.post(
       );
       res.status(200).json({ message: "Profile picture upload successfully" });
     } catch (error) {
+      console.log('hey' , error);
       res.status(500).json({ message: "Error uploading profile picture" });
     }
   }
